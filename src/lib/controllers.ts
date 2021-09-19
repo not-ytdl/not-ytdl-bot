@@ -8,7 +8,7 @@ import { URL } from 'url';
 import fs  from 'fs';
 import fsp from 'fs/promises';
 import qs from 'qs';
-import { IFetch, ILinks, IConvert } from '../interfaces/Controllers_interface.js';
+import { IFetch, ILinks, IConvertResponse, IDownloadresponse } from '../interfaces/Controllers_interface.js';
 import genNumber from '../utils/name_file.js';
 
 const __dirname: string = dirname(new URL(import.meta.url).pathname);
@@ -67,11 +67,12 @@ class Controllers {
         vid: '',
         a: '',
         mess: '',
+        
       }
     }
   }
   // once a get data the key and id of the video, I can POST a givenm endpoint to retrieve the link of the source to download the music from.
-  public async convert(vid_id: string, k: string): Promise<IConvert> {
+  public async convert(vid_id: string, k: string): Promise<IConvertResponse> {
     try {
       const response = await axios({
         method: 'POST',
@@ -113,14 +114,17 @@ class Controllers {
     }
   }
   // this method will download a given video / music by url into the temp folder.
-  public async download(url: string, downloadFolder: string = this._TempPath, title: string): Promise<{
-    success: boolean,
-    path?: string,
-    err?: unknown
-  }> {
+  public async download(url: string, downloadFolder: string = this._TempPath, title: string):
+    Promise<IDownloadresponse> {
+    //generate random numbers
     const gnNum = genNumber();
-    
-    const localFilePath: string = resolve(__dirname, downloadFolder, `${gnNum}.mp3`);
+    // this path is where it is going to be saved in:
+    const oldLocalFilePath: string = resolve(__dirname, downloadFolder, `${gnNum}.mp3`);
+
+    // remove non alpha numerical characters and replace it with spaces
+    const sanitizedTitle: string = title.replace(/[^0-9a-z]/gi, ' ');
+    // new path with the original title
+    const newLocalFilePath: string = resolve(__dirname, downloadFolder, `${sanitizedTitle}.mp3`);
       try {
         const response: AxiosResponse<any> = await axios({
           method: 'GET',
@@ -128,17 +132,25 @@ class Controllers {
           responseType: 'stream',
         });
         
-        const w: fs.WriteStream = response.data.pipe(fs.createWriteStream(localFilePath));
+        const w: fs.WriteStream = response.data.pipe(fs.createWriteStream(oldLocalFilePath));
         
         w.on('finish', () => {
-          console.log('downloaded.')
+          
+          // rename the file to the original title
+          fs.rename(oldLocalFilePath, newLocalFilePath, (e) => {
+            if (e) { console.error(e) }
+            else { return; }
+            
+          });
         });
+        
 
         return {
           success: true,
-          path: join(this._TempPath, localFilePath)
+          path: join(this._TempPath, newLocalFilePath)
         }
     } catch (err) {
+        console.error(err);
         return {
             success: false,
             err: err
@@ -149,10 +161,10 @@ class Controllers {
 }
 
 const test = new Controllers();
-const test2 = await test.fetch('https://youtu.be/0d-1ZilyKdw', 'mp3');
+const test2 = await test.fetch('https://www.youtube.com/watch?v=q8F5BDci5VQ', 'mp3');
 if (test2.links) {
   const a = await test.convert(test2.vid, test2.links[4].k);
-  await test.download(a.dlink , undefined ,test2.title)
+  console.log(await test.download(a.dlink , undefined ,test2.title))
 }
   
  

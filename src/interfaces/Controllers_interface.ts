@@ -2,7 +2,7 @@
 //Code under MIT license.
 
 
-export interface IConvert {
+export interface IConvertResponse {
   status_code: 0 | 1,
   status: string,
   mess: string,
@@ -17,6 +17,11 @@ export interface ILinks {
   f: string,
   q: string,
   k: string
+}
+export interface IDownloadresponse {
+  success: boolean,
+  path?: string,
+  err?: unknown
 }
 export interface IFetch {
   status_code: 0 | 1,
