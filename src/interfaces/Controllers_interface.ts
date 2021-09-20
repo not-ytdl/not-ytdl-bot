@@ -21,6 +21,7 @@ export interface ILinks {
 export interface IDownloadresponse {
   success: boolean,
   path?: string,
+  oldPath?: string
   err?: unknown
 }
 export interface IFetch {

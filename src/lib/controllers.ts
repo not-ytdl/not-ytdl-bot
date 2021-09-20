@@ -3,19 +3,27 @@
 
 import TlgBot from 'node-telegram-bot-api';
 import axios, { AxiosResponse } from 'axios';
-import { dirname, join, basename, resolve } from 'path';
+import { dirname, join, resolve } from 'path';
 import { URL } from 'url';
-import fs  from 'fs';
-import fsp from 'fs/promises';
+import fs, { existsSync } from 'fs';
 import qs from 'qs';
 import { IFetch, ILinks, IConvertResponse, IDownloadresponse } from '../interfaces/Controllers_interface.js';
 import genNumber from '../utils/name_file.js';
+import del from 'del'
 
 const __dirname: string = dirname(new URL(import.meta.url).pathname);
 
-class Controllers {
+export default class Controllers {
+  // Temporal path
   private _TempPath: string = join(__dirname, '../../temp').substring(1);
   
+ 
+  public async getLinkFromTelegram(bot: TlgBot, msg: TlgBot.Message, link: string) {
+    
+  }
+  
+
+  //* The methods below this comment are meant to manage the 9 convert API
   // this method will fetch data from 9convert.com to get the links and the different quality
   public async fetch(url: string, vt: string): Promise<IFetch> {
     try {
@@ -59,7 +67,7 @@ class Controllers {
         mess: response.data.mess,
       }
     } catch (e) {
-      console.error(e)
+      
       return {
         status_code: 0,
         status: 'Error, something  related to the request failed, check logs',
@@ -71,7 +79,7 @@ class Controllers {
       }
     }
   }
-  // once a get data the key and id of the video, I can POST a givenm endpoint to retrieve the link of the source to download the music from.
+  // once a get data the key and id of the video, I can POST a given endpoint to retrieve the link of the source to download the music from.
   public async convert(vid_id: string, k: string): Promise<IConvertResponse> {
     try {
       const response = await axios({
@@ -113,8 +121,19 @@ class Controllers {
       }
     }
   }
+  private async sendMusic(bot: TlgBot, msg: TlgBot.Message, path: string) {
+    if (existsSync(path)) {
+      bot.sendMessage(msg.chat.id, 'sending...')
+      bot.sendAudio(msg.chat.id, path);
+
+      //delete temp:
+      await this.deleteTempFolder(join(__dirname, '../../temp').substring(1));
+    } else {
+      this.sendMusic(bot, msg, path)
+    }
+  }
   // this method will download a given video / music by url into the temp folder.
-  public async download(url: string, downloadFolder: string = this._TempPath, title: string):
+  public async download(url: string, downloadFolder: string = this._TempPath, title: string, bot: TlgBot, msg: TlgBot.Message):
     Promise<IDownloadresponse> {
     //generate random numbers
     const gnNum = genNumber();
@@ -134,20 +153,24 @@ class Controllers {
         
         const w: fs.WriteStream = response.data.pipe(fs.createWriteStream(oldLocalFilePath));
         
-        w.on('finish', () => {
-          
+        
+        w.on('close', async () => {
+                    
           // rename the file to the original title
-          fs.rename(oldLocalFilePath, newLocalFilePath, (e) => {
-            if (e) { console.error(e) }
-            else { return; }
-            
-          });
-        });
+          this.renameFile(oldLocalFilePath, newLocalFilePath, false);
+          this.sendMusic(bot, msg, newLocalFilePath);
+         // await this.deleteTempFolder(join(__dirname, '../../temp').substring(1));
+          /*fs.mkdir(this._TempPath, (e) => {
+            if (e) console.log('eerrrrror', e);
+            console.log('redi')
+          })*/
+        })
         
 
         return {
           success: true,
-          path: join(this._TempPath, newLocalFilePath)
+          path: newLocalFilePath,
+          oldPath: oldLocalFilePath
         }
     } catch (err) {
         console.error(err);
@@ -158,13 +181,41 @@ class Controllers {
       }
     }
   }
+  // this method will rename the file 
+  // reverse method is useful if you want to rename the file back down
+  private renameFile(oldPath: string, newPath: string, reverse: boolean): string {
+    try {
+      if (!reverse) {
+        fs.rename(oldPath, newPath, (e) => {
+          if (e) throw e;
+          return;
+        });
+        return newPath;
+      } else {
+        
+        fs.rename(newPath, oldPath, (e) => {
+          if (e) throw e;
+          return;
+        });
+        return oldPath;
+      }
+      
+    } catch (e) {
+      console.log(e);
+      throw e;
+    }
+  }
+
+  private async deleteTempFolder(path: string) {
+    try {
+      await del(path);
+
+  } catch (err) {
+
+  }
+  }
+
+  
 }
 
-const test = new Controllers();
-const test2 = await test.fetch('https://www.youtube.com/watch?v=q8F5BDci5VQ', 'mp3');
-if (test2.links) {
-  const a = await test.convert(test2.vid, test2.links[4].k);
-  console.log(await test.download(a.dlink , undefined ,test2.title))
-}
-  
- 
+
