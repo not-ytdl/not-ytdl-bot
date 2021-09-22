@@ -123,6 +123,7 @@ export default class Controllers {
   }
   private async sendMusic(bot: TlgBot, msg: TlgBot.Message, path: string) {
     if (existsSync(path)) {
+      bot.sendMessage(msg.chat.id, 'Sending')
       await bot.sendAudio(msg.chat.id, path);
 
       //delete temp:
