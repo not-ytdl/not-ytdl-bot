@@ -4,7 +4,9 @@
 import TlgBot from 'node-telegram-bot-api';
 import { getAPIKEY } from '../utils/get_keys.js';
 import Controllers from './controllers.js';
+import * as dotenv from 'dotenv'
 
+dotenv.config()
 const controllers: Controllers = new Controllers();
 
 //This class is in charge of the bot's logic.
@@ -13,7 +15,7 @@ export default class TelegramBot {
   // you can use your own token to host this bot on your own.
   private TOKEN: string = getAPIKEY() as string;
 
-  private bot: TlgBot = new TlgBot(this.TOKEN, { polling: true });
+  private bot: TlgBot = new TlgBot(process.env.TELEGRAM_BOT_API_KEY, { polling: true });
 
   public run() {
     this.bot.onText(/\/start/, (msg: TlgBot.Message) => {
