@@ -16,7 +16,7 @@
 ## Sample of use 📕
 
       First step:
-<img title="step 1" alt="step 1" src="./doc/screenshots/step 1.jpg">
+<div align="center" > <img  title="step 1" alt="step 1" src="./doc/screenshots/step 1.jpg"> </div>
 
 ----
 
