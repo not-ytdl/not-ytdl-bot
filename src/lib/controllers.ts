@@ -123,13 +123,16 @@ export default class Controllers {
   }
   private async sendMusic(bot: TlgBot, msg: TlgBot.Message, path: string) {
     if (existsSync(path)) {
-      bot.sendMessage(msg.chat.id, 'Sending')
+  
+      bot.sendMessage(msg.chat.id, 'Sending');
       await bot.sendAudio(msg.chat.id, path);
-
       //delete temp:
       await this.deleteTempFolder(join(__dirname, '../../temp').substring(1));
+      fs.mkdirSync(this._TempPath);
     } else {
-      await this.sendMusic(bot, msg, path)
+      //await this.sendMusic(bot, msg, path)
+     
+
     }
   }
   // this method will download a given video / music by url into the temp folder.
@@ -151,21 +154,25 @@ export default class Controllers {
           responseType: 'stream',
         });
         
-        const w: fs.WriteStream = response.data.pipe(fs.createWriteStream(oldLocalFilePath));
+        if (existsSync(this._TempPath)) {
+          
+          const w: fs.WriteStream = response.data.pipe(fs.createWriteStream(oldLocalFilePath));
         
         
         w.on('close', async () => {
                     
           // rename the file to the original title
           this.renameFile(oldLocalFilePath, newLocalFilePath, false);
+          
           this.sendMusic(bot, msg, newLocalFilePath);
-         // await this.deleteTempFolder(join(__dirname, '../../temp').substring(1));
-          /*fs.mkdir(this._TempPath, (e) => {
-            if (e) console.log('eerrrrror', e);
-            console.log('redi')
-          })*/
+         
         })
         
+        } else {
+          
+          fs.mkdirSync(this._TempPath);
+          this.download(url, downloadFolder, title, bot, msg);
+        }
 
         return {
           success: true,
