@@ -20,7 +20,8 @@
 
 ----
 
-
+## Warning ⚠
+<h3 align="center">The bot is not currently working since I don't know why the bot doesn't send the audio file back when it's being hosted on heroku.</h3>
 ## Download 💾
 
 
