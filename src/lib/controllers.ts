@@ -123,13 +123,12 @@ export default class Controllers {
   }
   private async sendMusic(bot: TlgBot, msg: TlgBot.Message, path: string) {
     if (existsSync(path)) {
-      bot.sendMessage(msg.chat.id, 'sending...')
-      bot.sendAudio(msg.chat.id, path);
+      await bot.sendAudio(msg.chat.id, path);
 
       //delete temp:
       await this.deleteTempFolder(join(__dirname, '../../temp').substring(1));
     } else {
-      this.sendMusic(bot, msg, path)
+      await this.sendMusic(bot, msg, path)
     }
   }
   // this method will download a given video / music by url into the temp folder.
