@@ -57,5 +57,9 @@ This software uses the following open source packages:
 ## License 🔐
 ### The source code of this project is under the [MIT license](https://github.com/alejandro0619/Fixer-wrapper/blob/main/LICENSE) 
 
+## Special thanks 👏 
+#### To [Nodsg](https://twitter.com/nodssg) for making the bot's logo. 
+#### To the creators of the libraries used in the bot. 
+#### To [alejandro0619](https://github.com/alejandro0619) for contributing in the process of design and development of the bot.
 ---
 > Github [@alejandro0619](https://github.com/alejandro0619) &nbsp;&nbsp;
