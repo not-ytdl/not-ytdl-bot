@@ -16,10 +16,16 @@ export default class TelegramBot {
   private bot: TlgBot = new TlgBot(this.TOKEN, { polling: true });
 
   public run() {
-    this.bot.on('message', async  (msg, match) => {
-      if (msg.text) {
+    this.bot.onText(/\/start/, (msg: TlgBot.Message) => {
+      this.bot.sendMessage(msg.chat.id, '📍 Use @vid inline bot to search a song, or send me a link to the video. \n 📍 Type /info to get the info about this bot.')
+    });
+    this.bot.onText(/\/info/, (msg: TlgBot.Message) => {
+      this.bot.sendMessage(msg.chat.id, '📍 This is an open source bot, feel free to contribute https://github.com/not-ytdl/not/ytdl-bot and leavea start if you found it useful!')
+    });
+    this.bot.on('message', async  (msg: TlgBot.Message): Promise<void> => {
+      if (msg.text && msg.text !== '/start' && msg.text !== '/info') {
         
-        this.bot.sendMessage(msg.chat.id, 'Searching the song');
+        this.bot.sendMessage(msg.chat.id, '⌚ Searching the song, please wait.');
         // fetch data
         const fetch = await controllers.fetch(msg.text, 'mp3');
         // check if links exists
@@ -27,11 +33,11 @@ export default class TelegramBot {
           // convert the link
           const convertData = await controllers.convert(fetch.vid, fetch.links[4].k);
           // download it:
-          const download = await controllers.download(convertData.dlink, undefined, fetch.title, this.bot, msg);
-          return download;
-
+          await controllers.download(convertData.dlink, undefined, fetch.title, this.bot, msg);
+          return;
+ 
         } else {
-          this.bot.sendMessage(msg.chat.id, 'Couldn\'t get data from youtube, try again later');
+          this.bot.sendMessage(msg.chat.id, '⚠ Couldn\'t get data from youtube, try again later.');
           return;
         }
       }
@@ -42,5 +48,3 @@ export default class TelegramBot {
   }
 }
 
-
-new TelegramBot().run()
