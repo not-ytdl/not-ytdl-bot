@@ -10,12 +10,12 @@ dotenv.config()
 const controllers: Controllers = new Controllers();
 
 //This class is in charge of the bot's logic.
-
+const TOKEN = process.env.TELEGRAM_BOT_API_KEY as string
 export default class TelegramBot {
   // you can use your own token to host this bot on your own.
-  private TOKEN: string = getAPIKEY() as string;
+  //private TOKEN: string = getAPIKEY() as string;
 
-  private bot: TlgBot = new TlgBot(process.env.TELEGRAM_BOT_API_KEY, { polling: true });
+  private bot: TlgBot = new TlgBot(TOKEN, { polling: true });
 
   public run() {
     this.bot.onText(/\/start/, (msg: TlgBot.Message) => {
