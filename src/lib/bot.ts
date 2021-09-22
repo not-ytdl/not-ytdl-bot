@@ -37,7 +37,7 @@ export default class TelegramBot {
           return;
  
         } else {
-          this.bot.sendMessage(msg.chat.id, '⚠ Couldn\'t get data from youtube, try again later');
+          this.bot.sendMessage(msg.chat.id, '⚠ Couldn\'t get data from youtube, try again later.');
           return;
         }
       }
