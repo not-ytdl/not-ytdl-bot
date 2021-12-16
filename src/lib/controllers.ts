@@ -117,15 +117,16 @@ export default class Controllers {
       }
     }
   }
-  private async sendMusic(bot: TlgBot, msg: TlgBot.Message, path: string) {
+  private async sendMusic(bot: TlgBot, msg: TlgBot.Message, opt: { path: string, title: string, caption: string, artist: string }) {
+    const { path, title, caption, artist } = opt
     if (existsSync(path)) {
       await bot.sendMessage(msg.chat.id, 'Sending');
-      await bot.sendAudio(msg.chat.id, path, {title: 'test 1', caption: 'caption test', performer: 'kek'});
+      await bot.sendAudio(msg.chat.id, path, {title, caption, performer: artist});
       //delete temp:
       await this.deleteTempFolder(join(__dirname, '../../temp').substring(1));
       fs.mkdir(this._TempPath, { recursive: false }, e => {});
     } else {
-      await this.sendMusic(bot, msg, path)
+      await this.sendMusic(bot, msg, opt);
      //await bot.sendMessage(msg.chat.id, 'Couldn\'t be sent')
 
     }
@@ -136,12 +137,7 @@ export default class Controllers {
     //generate random numbers
     const gnNum: number = genNumber();
     // this path is where it is going to be saved in:
-    const oldLocalFilePath: string = resolve(__dirname, downloadFolder, `${gnNum}`);
-
-    // remove non alpha numerical characters and replace it with spaces
-    const sanitizedTitle: string = title.replace(/[^0-9a-z]/gi, ' ').replace (/s+/g,"");
-    // new path with the original title
-    const newLocalFilePath: string = resolve(__dirname, downloadFolder, `${sanitizedTitle}`);
+    const localFilePath: string = resolve(__dirname, downloadFolder, `${gnNum}`);
       try {
         const response: AxiosResponse<any> = await axios({
           method: 'GET',
@@ -151,15 +147,11 @@ export default class Controllers {
         
         if (existsSync(this._TempPath)) {
           
-          const w: fs.WriteStream = response.data.pipe(fs.createWriteStream(oldLocalFilePath));
+          const w: fs.WriteStream = response.data.pipe(fs.createWriteStream(localFilePath));
         
         
           w.on('close', async () => {
-                    
-            // rename the file to the original title
-            this.renameFile(oldLocalFilePath, newLocalFilePath, false);
-          
-            await this.sendMusic(bot, msg, newLocalFilePath);
+            await this.sendMusic(bot, msg, { title: localFilePath);
             console.log('sendmusic method trigered')
           });
         
@@ -171,8 +163,7 @@ export default class Controllers {
 
         return {
           success: true,
-          path: newLocalFilePath,
-          oldPath: oldLocalFilePath
+          path: localFilePath,
         }
     } catch (err) {
         console.error(err);
