@@ -151,8 +151,7 @@ export default class Controllers {
         
         
           w.on('close', async () => {
-            await this.sendMusic(bot, msg, { title: localFilePath);
-            console.log('sendmusic method trigered')
+            await this.sendMusic(bot, msg, { title, artist: 'artist test 1', caption: 'This is a caption, @not_ytdl_bot', path: localFilePath });
           });
         
         } else {
