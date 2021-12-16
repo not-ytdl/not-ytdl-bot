@@ -22,7 +22,7 @@ export default class TelegramBot {
       this.bot.sendMessage(msg.chat.id, '📍 Use @vid inline bot to search a song, or send me a link to the video. \n 📍 Type /info to get the info about this bot.')
     });
     this.bot.onText(/\/info/, (msg: TlgBot.Message) => {
-      this.bot.sendMessage(msg.chat.id, '📍 This is an open source bot, feel free to contribute https://github.com/not-ytdl/not/ytdl-bot and leavea start if you found it useful!')
+      this.bot.sendMessage(msg.chat.id, '📍 This is an open source bot, feel free to contribute https://github.com/not-ytdl/not/ytdl-bot and leave star if you found it useful!')
     });
     this.bot.on('message', async  (msg: TlgBot.Message): Promise<void> => {
       if (msg.text && msg.text !== '/start' && msg.text !== '/info') {

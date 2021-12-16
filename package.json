@@ -18,6 +18,7 @@
     "qs": "^6.10.1"
   },
   "devDependencies": {
+    "@types/del": "^4.0.0",
     "@types/node": "^16.9.1",
     "@types/node-telegram-bot-api": "^0.51.4",
     "@types/qs": "^6.9.7",

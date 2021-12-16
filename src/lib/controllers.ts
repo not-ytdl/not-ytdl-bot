@@ -9,19 +9,15 @@ import fs, { existsSync } from 'fs';
 import qs from 'qs';
 import { IFetch, ILinks, IConvertResponse, IDownloadresponse } from '../interfaces/Controllers_interface.js';
 import genNumber from '../utils/name_file.js';
-import del from 'del'
+import del from 'del';
 
 const __dirname: string = dirname(new URL(import.meta.url).pathname);
 
 export default class Controllers {
-  // Temporal path
+  // Temporal folder path
   private _TempPath: string = join(__dirname, '../../temp').substring(1);
   
  
-  public async getLinkFromTelegram(bot: TlgBot, msg: TlgBot.Message, link: string) {
-    
-  }
-  
 
   //* The methods below this comment are meant to manage the 9 convert API
   // this method will fetch data from 9convert.com to get the links and the different quality
@@ -79,7 +75,7 @@ export default class Controllers {
       }
     }
   }
-  // once a get data the key and id of the video, I can POST a given endpoint to retrieve the link of the source to download the music from.
+  // once I get data the key and id of the video, I can POST a given endpoint to retrieve the link of the source to download the music from.
   public async convert(vid_id: string, k: string): Promise<IConvertResponse> {
     try {
       const response = await axios({
@@ -109,7 +105,7 @@ export default class Controllers {
       console.error(e);
       return {
         status_code: 0,
-        status: '',
+        status: 'Error, something  related to the request failed, check logs',
         mess: '',
         c_status: '',
         vid: '',
@@ -123,15 +119,14 @@ export default class Controllers {
   }
   private async sendMusic(bot: TlgBot, msg: TlgBot.Message, path: string) {
     if (existsSync(path)) {
-  
-      bot.sendMessage(msg.chat.id, 'Sending');
-      await bot.sendAudio(msg.chat.id, path);
+      await bot.sendMessage(msg.chat.id, 'Sending');
+      await bot.sendAudio(msg.chat.id, path, {title: 'test 1', caption: 'caption test', performer: 'kek'});
       //delete temp:
       await this.deleteTempFolder(join(__dirname, '../../temp').substring(1));
-      fs.mkdirSync(this._TempPath);
+      fs.mkdir(this._TempPath, { recursive: false }, e => {});
     } else {
-      //await this.sendMusic(bot, msg, path)
-     
+      await this.sendMusic(bot, msg, path)
+     //await bot.sendMessage(msg.chat.id, 'Couldn\'t be sent')
 
     }
   }
@@ -139,14 +134,14 @@ export default class Controllers {
   public async download(url: string, downloadFolder: string = this._TempPath, title: string, bot: TlgBot, msg: TlgBot.Message):
     Promise<IDownloadresponse> {
     //generate random numbers
-    const gnNum = genNumber();
+    const gnNum: number = genNumber();
     // this path is where it is going to be saved in:
-    const oldLocalFilePath: string = resolve(__dirname, downloadFolder, `${gnNum}.mp3`);
+    const oldLocalFilePath: string = resolve(__dirname, downloadFolder, `${gnNum}`);
 
     // remove non alpha numerical characters and replace it with spaces
-    const sanitizedTitle: string = title.replace(/[^0-9a-z]/gi, ' ');
+    const sanitizedTitle: string = title.replace(/[^0-9a-z]/gi, ' ').replace (/s+/g,"");
     // new path with the original title
-    const newLocalFilePath: string = resolve(__dirname, downloadFolder, `${sanitizedTitle}.mp3`);
+    const newLocalFilePath: string = resolve(__dirname, downloadFolder, `${sanitizedTitle}`);
       try {
         const response: AxiosResponse<any> = await axios({
           method: 'GET',
@@ -159,14 +154,14 @@ export default class Controllers {
           const w: fs.WriteStream = response.data.pipe(fs.createWriteStream(oldLocalFilePath));
         
         
-        w.on('close', async () => {
+          w.on('close', async () => {
                     
-          // rename the file to the original title
-          this.renameFile(oldLocalFilePath, newLocalFilePath, false);
+            // rename the file to the original title
+            this.renameFile(oldLocalFilePath, newLocalFilePath, false);
           
-          this.sendMusic(bot, msg, newLocalFilePath);
-         
-        })
+            await this.sendMusic(bot, msg, newLocalFilePath);
+            console.log('sendmusic method trigered')
+          });
         
         } else {
           
