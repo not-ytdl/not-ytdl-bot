@@ -173,41 +173,15 @@ export default class Controllers {
       }
     }
   }
-  // this method will rename the file 
-  // reverse method is useful if you want to rename the file back down
-  private renameFile(oldPath: string, newPath: string, reverse: boolean): string {
-    try {
-      if (!reverse) {
-        fs.rename(oldPath, newPath, (e) => {
-          if (e) throw e;
-          return;
-        });
-        return newPath;
-      } else {
-        
-        fs.rename(newPath, oldPath, (e) => {
-          if (e) throw e;
-          return;
-        });
-        return oldPath;
-      }
-      
-    } catch (e) {
-      console.log(e);
-      throw e;
-    }
-  }
-
   private async deleteTempFolder(path: string) {
     try {
       await del(path);
 
   } catch (err) {
-
+    console.log(err)
   }
   }
 
-  
 }
 
 
