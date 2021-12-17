@@ -121,22 +121,22 @@ export default class Controllers {
     title: string,
     caption: string,
     artist: string
-  }) {
+  }, msg_id: number) {
     const { path, title, caption, artist } = opt
     if (existsSync(path)) {
-      await bot.sendMessage(msg.chat.id, 'Sending');
+      
       await bot.sendAudio(msg.chat.id, path, {title, caption, performer: artist});
       //delete temp:
       await this.deleteTempFolder(join(__dirname, '../../temp').substring(1));
       fs.mkdir(this._TempPath, { recursive: false }, e => {});
     } else {
-      await this.sendMusic(bot, msg, opt);
+      await this.sendMusic(bot, msg, opt, msg_id);
      await bot.sendMessage(msg.chat.id, 'Couldn\'t be sent')
 
     }
   }
   // this method will download a given video / music by, url into the temp folder.
-  public async download(url: string, downloadFolder: string = this._TempPath, title: string, account: string, bot: TlgBot, msg: TlgBot.Message):
+  public async download(url: string, downloadFolder: string = this._TempPath, title: string, account: string, bot: TlgBot, msg: TlgBot.Message, msg_id: number):
     Promise<IDownloadresponse> {
     //generate random numbers
     const gnNum: number = genNumber();
@@ -154,13 +154,13 @@ export default class Controllers {
           const w: fs.WriteStream = response.data.pipe(fs.createWriteStream(localFilePath));
         
           w.on('close', async () => {
-            await this.sendMusic(bot, msg, { title, artist: account, caption: `@not_ytdl_bot`, path: localFilePath });
+            await this.sendMusic(bot, msg, { title, artist: account, caption: `@not_ytdl_bot`, path: localFilePath }, msg_id);
           });
         
         } else {
           
           fs.mkdirSync(this._TempPath);
-          this.download(url, downloadFolder, title, account, bot, msg);
+          this.download(url, downloadFolder, title, account, bot, msg, msg_id);
         }
 
         return {
