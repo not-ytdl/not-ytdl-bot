@@ -40,7 +40,7 @@ export default class TelegramBot {
           await controllers.download(convertData.dlink, undefined, fetch.title, fetch.a, this.bot, msg, message_id);
 
           // This will edit the message text sent before so we are going to pass the message id too:
-          await this.bot.editMessageText('Sending', {message_id: message_id,chat_id: chat.id });
+          await this.bot.editMessageText('✔Sending', {message_id: message_id,chat_id: chat.id });
           return;
           
         } else {
