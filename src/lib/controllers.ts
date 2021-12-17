@@ -17,8 +17,6 @@ export default class Controllers {
   // Temporal folder path
   private _TempPath: string = join(__dirname, '../../temp').substring(1);
   
- 
-
   //* The methods below this comment are meant to manage the 9 convert API
   // this method will fetch data from 9convert.com to get the links and the different quality
   public async fetch(url: string, vt: string): Promise<IFetch> {
@@ -34,6 +32,7 @@ export default class Controllers {
           'content-type': 'application/x-www-form-urlencoded;charset=utf-8'
         }
       });
+     
       //getting the links of the video depending on quality of the audio
       let links: ILinks[] = [];
       if (response.data.links.mp3) {
@@ -117,7 +116,12 @@ export default class Controllers {
       }
     }
   }
-  private async sendMusic(bot: TlgBot, msg: TlgBot.Message, opt: { path: string, title: string, caption: string, artist: string }) {
+  private async sendMusic(bot: TlgBot, msg: TlgBot.Message, opt: {
+    path: string,
+    title: string,
+    caption: string,
+    artist: string
+  }) {
     const { path, title, caption, artist } = opt
     if (existsSync(path)) {
       await bot.sendMessage(msg.chat.id, 'Sending');
@@ -127,12 +131,12 @@ export default class Controllers {
       fs.mkdir(this._TempPath, { recursive: false }, e => {});
     } else {
       await this.sendMusic(bot, msg, opt);
-     //await bot.sendMessage(msg.chat.id, 'Couldn\'t be sent')
+     await bot.sendMessage(msg.chat.id, 'Couldn\'t be sent')
 
     }
   }
-  // this method will download a given video / music by url into the temp folder.
-  public async download(url: string, downloadFolder: string = this._TempPath, title: string, bot: TlgBot, msg: TlgBot.Message):
+  // this method will download a given video / music by, url into the temp folder.
+  public async download(url: string, downloadFolder: string = this._TempPath, title: string, account: string, bot: TlgBot, msg: TlgBot.Message):
     Promise<IDownloadresponse> {
     //generate random numbers
     const gnNum: number = genNumber();
@@ -149,15 +153,14 @@ export default class Controllers {
           
           const w: fs.WriteStream = response.data.pipe(fs.createWriteStream(localFilePath));
         
-        
           w.on('close', async () => {
-            await this.sendMusic(bot, msg, { title, artist: 'artist test 1', caption: 'This is a caption, @not_ytdl_bot', path: localFilePath });
+            await this.sendMusic(bot, msg, { title, artist: account, caption: `@not_ytdl_bot`, path: localFilePath });
           });
         
         } else {
           
           fs.mkdirSync(this._TempPath);
-          this.download(url, downloadFolder, title, bot, msg);
+          this.download(url, downloadFolder, title, account, bot, msg);
         }
 
         return {

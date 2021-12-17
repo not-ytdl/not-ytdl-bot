@@ -24,7 +24,7 @@ export default class TelegramBot {
     this.bot.onText(/\/info/, (msg: TlgBot.Message) => {
       this.bot.sendMessage(msg.chat.id, '📍 This is an open source bot, feel free to contribute https://github.com/not-ytdl/not/ytdl-bot and leave star if you found it useful!')
     });
-    this.bot.on('message', async  (msg: TlgBot.Message): Promise<void> => {
+    this.bot.on('message', async (msg: TlgBot.Message): Promise<void> => {
       if (msg.text && msg.text !== '/start' && msg.text !== '/info') {
         
         this.bot.sendMessage(msg.chat.id, '⌚ Searching the song, please wait.');
@@ -35,7 +35,7 @@ export default class TelegramBot {
           // convert the link
           const convertData = await controllers.convert(fetch.vid, fetch.links[4].k);
           // download it:
-          await controllers.download(convertData.dlink, undefined, fetch.title, this.bot, msg);
+          await controllers.download(convertData.dlink, undefined, fetch.title, fetch.a, this.bot, msg);
           return;
  
         } else {
@@ -45,7 +45,7 @@ export default class TelegramBot {
       }
     }
   
-    )
+    );
 
   }
 }
