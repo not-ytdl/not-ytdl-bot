@@ -9,6 +9,7 @@ import fs, { existsSync } from 'fs';
 import qs from 'qs';
 import { IFetch, ILinks, IConvertResponse, IDownloadresponse } from '../interfaces/Controllers_interface.js';
 import genNumber from '../utils/name_file.js';
+import getFileSize from '../utils/file_size.js'
 import del from 'del';
 
 const __dirname: string = dirname(new URL(import.meta.url).pathname);
@@ -124,10 +125,11 @@ export default class Controllers {
   }, msg_id: number) {
     const { path, title, caption, artist } = opt
     if (existsSync(path)) {
-      
+      console.log(await getFileSize(path));
       await bot.sendAudio(msg.chat.id, path, {title, caption, performer: artist});
       //delete temp:
       await this.deleteTempFolder(join(__dirname, '../../temp').substring(1));
+      
       fs.mkdir(this._TempPath, { recursive: false }, e => {});
     } else {
       await this.sendMusic(bot, msg, opt, msg_id);
