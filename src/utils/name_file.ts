@@ -12,7 +12,7 @@ export default function genNumber(min = 0, max = 20): number {
   const number = Math.floor(
     Math.random() * (max - min) + min
   )
-  if (!fs.existsSync(`${_TempPath}/${number}.mp3`)) {
+  if (!fs.existsSync(`${_TempPath}/${number}`)) {
     return number;
   } else {
     return genNumber();
