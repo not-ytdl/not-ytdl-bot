@@ -116,21 +116,7 @@ export default class Controllers {
       }
     }
   }
-  private async sendMusic(bot: TlgBot, msg: TlgBot.Message, opt: {
-    path: string, 
-    title: string,
-    caption: string,
-    artist: string
-  }, msg_id: number) {
-    const { path, title, caption, artist } = opt;
-    if (existsSync(path)) {
-      await bot.sendAudio(msg.chat.id, path, {title, caption, performer: artist});
-      //delete file :
-      await this.deleteFile(path);
-    } else {
-      await this.sendMusic(bot, msg, opt, msg_id);
-    }
-  }
+
   // this method will download a given video / music by, url into the temp folder.
   public async download(url: string, downloadFolder: string = this._TempPath, title: string, account: string, bot: TlgBot, msg: TlgBot.Message, msg_id: number):
     Promise<IDownloadresponse> {
@@ -152,7 +138,7 @@ export default class Controllers {
             // get the file size
             const fileSize = await getFileSize(localFilePath);
             //send the file
-            await this.sendMusic(bot, msg, { title, artist: account, caption: `@not_ytdl_bot \n 💾 Size: ${fileSize} MB`, path: localFilePath }, msg_id);
+            await this.sendMusic(bot, msg, { title, artist: account, caption: `@not_ytdl_bot \n 💾 Size: <b>${fileSize} MB</b>`, path: localFilePath }, msg_id);
           });
         
         } else {
@@ -171,6 +157,21 @@ export default class Controllers {
             err: err
         
       }
+    }
+  }
+  private async sendMusic(bot: TlgBot, msg: TlgBot.Message, opt: {
+    path: string, 
+    title: string,
+    caption: string,
+    artist: string
+  }, msg_id: number) {
+    const { path, title, caption, artist } = opt;
+    if (existsSync(path)) {
+      await bot.sendAudio(msg.chat.id, path, {title, caption, performer: artist, parse_mode:'HTML'});
+      //delete file :
+      await this.deleteFile(path);
+    } else {
+      await this.sendMusic(bot, msg, opt, msg_id);
     }
   }
   private async deleteFile(path: string) {
