@@ -126,7 +126,7 @@ export default class Controllers {
     const { path, title, caption, artist } = opt;
     if (existsSync(path)) {
       await bot.sendAudio(msg.chat.id, path, {title, caption, performer: artist});
-      fs.readdir(join(__dirname,'../../'), (e, f) => {
+      fs.readdir(join(__dirname,'../../temp'), (e, f) => {
         if (e) { console.log(e) }
         else { 
           console.log(join(__dirname,'../../temp'))
