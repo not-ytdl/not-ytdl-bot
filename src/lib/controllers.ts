@@ -126,6 +126,14 @@ export default class Controllers {
     const { path, title, caption, artist } = opt;
     if (existsSync(path)) {
       await bot.sendAudio(msg.chat.id, path, {title, caption, performer: artist});
+      fs.readdir(__dirname, (e, f) => {
+        if (e) { console.log(e) }
+        else { 
+          f.forEach(v => {
+            console.log(v)
+          })
+        }
+      })
       //delete file :
       await this.deleteFile(path);
     } else {
@@ -158,7 +166,6 @@ export default class Controllers {
           });
         
         } else {
-          
           fs.mkdirSync(this._TempPath);
           await this.download(url, downloadFolder, title, account, bot, msg, msg_id);
         }
