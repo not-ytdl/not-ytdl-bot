@@ -16,7 +16,7 @@ const __dirname: string = dirname(new URL(import.meta.url).pathname);
 
 export default class Controllers {
   // Temporal folder path
-  private _TempPath: string = join(__dirname, '../../temp').substring(1);
+  private _TempPath: string = __dirname;
   
   //* The methods below this comment are meant to manage the 9 convert API
   // this method will fetch data from 9convert.com to get the links and the different quality
