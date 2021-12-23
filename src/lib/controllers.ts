@@ -118,19 +118,16 @@ export default class Controllers {
     }
   }
   private async sendMusic(bot: TlgBot, msg: TlgBot.Message, opt: {
-    path: string,
+    path: string, 
     title: string,
     caption: string,
     artist: string
   }, msg_id: number) {
-    const { path, title, caption, artist } = opt
+    const { path, title, caption, artist } = opt;
     if (existsSync(path)) {
-      console.log(await getFileSize(path));
       await bot.sendAudio(msg.chat.id, path, {title, caption, performer: artist});
-      //delete temp:
-      await this.deleteTempFolder(join(__dirname, '../../temp').substring(1));
-      
-      fs.mkdir(this._TempPath, { recursive: false }, e => {});
+      //delete file :
+      await this.deleteFile(path);
     } else {
       await this.sendMusic(bot, msg, opt, msg_id);
      await bot.sendMessage(msg.chat.id, 'Couldn\'t be sent')
@@ -150,19 +147,20 @@ export default class Controllers {
           url: url,
           responseType: 'stream',
         });
-        
         if (existsSync(this._TempPath)) {
           
           const w: fs.WriteStream = response.data.pipe(fs.createWriteStream(localFilePath));
         
           w.on('close', async () => {
-            await this.sendMusic(bot, msg, { title, artist: account, caption: `@not_ytdl_bot`, path: localFilePath }, msg_id);
+            // get the file size
+             const fileSize = await getFileSize(localFilePath);
+            await this.sendMusic(bot, msg, { title, artist: account, caption: `@not_ytdl_bot \n 💾 Size: ${fileSize} MB`, path: localFilePath }, msg_id);
           });
         
         } else {
           
           fs.mkdirSync(this._TempPath);
-          this.download(url, downloadFolder, title, account, bot, msg, msg_id);
+          await this.download(url, downloadFolder, title, account, bot, msg, msg_id);
         }
 
         return {
@@ -178,13 +176,10 @@ export default class Controllers {
       }
     }
   }
-  private async deleteTempFolder(path: string) {
-    try {
-      await del(path);
-
-  } catch (err) {
-    console.log(err)
-  }
+  private async deleteFile(path: string) {
+    fs.unlink(path, (e)=> {
+      console.log(e)
+    })
   }
 
 }

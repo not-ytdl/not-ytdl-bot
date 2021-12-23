@@ -10,7 +10,10 @@ dotenv.config()
 const controllers: Controllers = new Controllers();
 
 //This class is in charge of the bot's logic.
-const TOKEN = process.env.TELEGRAM_BOT_API_KEY as string
+const TOKEN = process.env.TELEGRAM_BOT_API_KEY as string;
+
+// Youtube regex:
+const YOUTUBE_URL_REGEX = /^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$/
 export default class TelegramBot {
   // you can use your own token to host this bot on your own.
   //private TOKEN: string = getAPIKEY() as string;
@@ -25,10 +28,10 @@ export default class TelegramBot {
       await this.bot.sendMessage(msg.chat.id, '📍 This is an open source bot, feel free to contribute https://github.com/not-ytdl/not/ytdl-bot and leave star if you found it useful!')
     });
     this.bot.on('message', async (msg: TlgBot.Message): Promise<void> => {
-      if (msg.text && msg.text !== '/start' && msg.text !== '/info') {
-        
-        // send a message and save the message id and chad id to edit the text within it.
-        const { message_id, chat } = await this.bot.sendMessage(msg.chat.id, '⌚ Searching the song, please wait.');
+       // send a message and save the message id and chad id to edit the text within it.
+      const { message_id, chat } = await this.bot.sendMessage(msg.chat.id, '⌚ Searching the song, please wait.');
+      console.log('a')
+      if (msg.text && msg.text !== '/start' && msg.text !== '/info' && msg.text.match(YOUTUBE_URL_REGEX)) {
         // fetch data
         const fetch = await controllers.fetch(msg.text, 'mp3');
         // check if links exists
@@ -38,15 +41,16 @@ export default class TelegramBot {
           // download it (this function will execute another function to send the file automatically after it's downloaded):
           // TODO: pass a object as a param and deconstruct it later.
           await controllers.download(convertData.dlink, undefined, fetch.title, fetch.a, this.bot, msg, message_id);
-
           // This will edit the message text sent before so we are going to pass the message id too:
           await this.bot.editMessageText('✔Sending', {message_id: message_id,chat_id: chat.id });
           return;
           
         } else {
-          this.bot.sendMessage(msg.chat.id, '⚠ Couldn\'t get data from youtube, try again later.');
+          await this.bot.sendMessage(msg.chat.id, 'Couldn\'t fetch data from youtube');
           return;
         }
+      } else {
+        this.bot.editMessageText('Send URL or query', {message_id, chat_id: chat.id});
       }
     }
   
