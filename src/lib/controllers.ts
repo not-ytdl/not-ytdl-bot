@@ -10,13 +10,12 @@ import qs from 'qs';
 import { IFetch, ILinks, IConvertResponse, IDownloadresponse } from '../interfaces/Controllers_interface.js';
 import genNumber from '../utils/name_file.js';
 import getFileSize from '../utils/file_size.js'
-import del from 'del';
 
 const __dirname: string = dirname(new URL(import.meta.url).pathname);
 
 export default class Controllers {
   // Temporal folder path
-  private _TempPath: string = join(__dirname,'../../temp')
+  private _TempPath: string = __dirname;
   
   //* The methods below this comment are meant to manage the 9 convert API
   // this method will fetch data from 9convert.com to get the links and the different quality
@@ -126,21 +125,10 @@ export default class Controllers {
     const { path, title, caption, artist } = opt;
     if (existsSync(path)) {
       await bot.sendAudio(msg.chat.id, path, {title, caption, performer: artist});
-      fs.readdir(join(__dirname,'../../temp'), (e, f) => {
-        if (e) { console.log(e) }
-        else { 
-          console.log(join(__dirname,'../../temp'))
-          f.forEach(v => {
-            console.log(v)
-          })
-        }
-      })
       //delete file :
       await this.deleteFile(path);
     } else {
       await this.sendMusic(bot, msg, opt, msg_id);
-     await bot.sendMessage(msg.chat.id, 'Couldn\'t be sent')
-
     }
   }
   // this method will download a given video / music by, url into the temp folder.
@@ -162,7 +150,8 @@ export default class Controllers {
         
           w.on('close', async () => {
             // get the file size
-             const fileSize = await getFileSize(localFilePath);
+            const fileSize = await getFileSize(localFilePath);
+            //send the file
             await this.sendMusic(bot, msg, { title, artist: account, caption: `@not_ytdl_bot \n 💾 Size: ${fileSize} MB`, path: localFilePath }, msg_id);
           });
         
@@ -186,7 +175,9 @@ export default class Controllers {
   }
   private async deleteFile(path: string) {
     fs.unlink(path, (e)=> {
-      console.log(e)
+      if (e) {
+        console.error(e);
+      }
     })
   }
 
