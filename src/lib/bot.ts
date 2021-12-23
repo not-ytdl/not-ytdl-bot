@@ -25,13 +25,13 @@ export default class TelegramBot {
       await this.bot.sendMessage(msg.chat.id, '📍 Use @vid inline bot to search a song, or send me a link to the video. \n 📍 Type /info to get the info about this bot.')
     });
     this.bot.onText(/\/info/, async (msg: TlgBot.Message) => {
-      await this.bot.sendMessage(msg.chat.id, '📍 This is an open source bot, feel free to contribute https://github.com/not-ytdl/not/ytdl-bot and leave star if you found it useful!')
+      await this.bot.sendMessage(msg.chat.id, '📍 This is an open source bot, feel free to contribute https://github.com/not-ytdl/not-ytdl-bot and leave star if you found it useful!')
     });
     this.bot.on('message', async (msg: TlgBot.Message): Promise<void> => {
-       // send a message and save the message id and chad id to edit the text within it.
-      const { message_id, chat } = await this.bot.sendMessage(msg.chat.id, '⌚ Searching the song, please wait.');
-      console.log('a')
+       
       if (msg.text && msg.text !== '/start' && msg.text !== '/info' && msg.text.match(YOUTUBE_URL_REGEX)) {
+        // send a message and save the message id and chad id to edit the text within it.
+      const { message_id, chat } = await this.bot.sendMessage(msg.chat.id, '⌚ Searching the song, please wait.');
         // fetch data
         const fetch = await controllers.fetch(msg.text, 'mp3');
         // check if links exists
@@ -50,7 +50,7 @@ export default class TelegramBot {
           return;
         }
       } else {
-        this.bot.editMessageText('Send URL or query', {message_id, chat_id: chat.id});
+        return;
       }
     }
   
