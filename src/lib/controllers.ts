@@ -129,7 +129,7 @@ export default class Controllers {
       fs.readdir(join(__dirname,'../../'), (e, f) => {
         if (e) { console.log(e) }
         else { 
-          console.log(join(__dirname,'../../'))
+          console.log(join(__dirname,'../../temp'))
           f.forEach(v => {
             console.log(v)
           })
