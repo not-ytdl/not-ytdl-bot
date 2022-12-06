@@ -15,7 +15,7 @@
     "del": "^6.0.0",
     "dotenv": "^10.0.0",
     "node-telegram-bot-api": "^0.54.0",
-    "qs": "^6.10.1"
+    "qs": "^6.10.3"
   },
   "devDependencies": {
     "@types/del": "^4.0.0",
